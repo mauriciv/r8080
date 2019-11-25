@@ -1,3 +1,7 @@
+#![allow(unused_variables)]
+
+mod opcodes;
+
 use std::error::Error;
 use std::fs::File;
 use std::io::Read;
@@ -25,11 +29,17 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 
     file_handler.read_to_end(&mut content)?;
 
+    let opcodes = opcodes::init_opcodes();
+
     for byte in content.iter() {
-        // println!("{:#04x}", byte);
-        if *byte == 0x0u8 {
-            println!("NOP Found");
+        if let Some(index) = opcodes.iter().position(|opcode| opcode.hex == *byte) {
+            println!("{:#04x}    {:#03?}    {}", byte, opcodes[index].hex, opcodes[index].mnemonic);
         }
+
+        // if *byte == 0x00u8 {
+        // println!("{:#04x}", byte);
+        //     println!("NOP Found");
+        // }
     }
 
     Ok(())
