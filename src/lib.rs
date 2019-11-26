@@ -5,6 +5,8 @@ mod opcodes;
 use std::error::Error;
 use std::fs::File;
 use std::io::Read;
+use std::str;
+use std::fmt::Write;
 
 pub struct Config {
     pub filename: String,
@@ -31,16 +33,40 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 
     let opcodes = opcodes::init_opcodes();
 
-    for byte in content.iter() {
-        if let Some(index) = opcodes.iter().position(|opcode| opcode.hex == *byte) {
-            println!("{:#04x}    {:#03?}    {}", byte, opcodes[index].hex, opcodes[index].mnemonic);
+    let mut byte_number = 1;
+    let mut current_opcode: &opcodes::Opcode;
+    match opcodes.iter().position(|opcode| opcode.hex == content[0]) {
+        Some(index) => current_opcode = &opcodes[index],
+        None => panic!("First byte is not an opcode"),
+    }
+    let mut program = String::new();
+    for &byte in content.iter() {
+
+        if byte_number == 1 {
+            if let Some(index) = opcodes.iter().position(|opcode| opcode.hex == byte) {
+                // println!("{:#04x}    {:#03?}    {}", byte, opcodes[index].hex, opcodes[index].mnemonic);
+                current_opcode = &opcodes[index];
+                program.push_str(current_opcode.mnemonic);
+                byte_number += 1;
+                continue;
+            }
         }
 
-        // if *byte == 0x00u8 {
-        // println!("{:#04x}", byte);
-        //     println!("NOP Found");
-        // }
+        // println!("byte_number {}", byte_number);
+        // println!("current_opcode.size {}", current_opcode.size);
+
+        if byte_number >= current_opcode.size {
+            // println!("byte_number >= current_opcde.size");
+            program.push_str("\n");
+            byte_number = 1;
+
+            continue;
+        }
+
+        write!(&mut program, " {:X}", byte).expect("Unable to write");
+        byte_number += 1;
     }
+    println!("{}", program);
 
     Ok(())
 }
