@@ -3,10 +3,10 @@
 mod opcodes;
 
 use std::error::Error;
+use std::fmt::Write;
 use std::fs::File;
 use std::io::Read;
 use std::str;
-use std::fmt::Write;
 
 pub struct Config {
     pub filename: String,
