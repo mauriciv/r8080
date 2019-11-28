@@ -33,42 +33,53 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 
     let opcodes = opcodes::init();
 
-    let mut byte_number = 1;
+    let mut byte_number = 0;
     let mut current_opcode: &opcodes::Opcode;
-    match opcodes.iter().position(|opcode| opcode.hex == content[0]) {
+    // match opcodes.iter().position(|opcode| opcode.hex == content[0]) {
+    match get_opcode(&opcodes, content[0]) {
         Some(index) => current_opcode = &opcodes[index],
         None => panic!("First byte is not an opcode"),
     }
     let mut program = String::new();
-    for &byte in content.iter() {
-
-        if byte_number == 1 {
-            if let Some(index) = opcodes.iter().position(|opcode| opcode.hex == byte) {
+    let mut program_counter = 0;
+    for &byte in &content {
+        // println!("Byte is :{:#04x}", byte);
+        if byte_number == 0 {
+            if let Some(index) = get_opcode(&opcodes, byte) {
                 // println!("{:#04x}    {:#03?}    {}", byte, opcodes[index].hex, opcodes[index].mnemonic);
+                write!(&mut program, "{:#06X}  ", program_counter)
+                    .expect("Unable to write program_counter");
+                program_counter += 1;
                 current_opcode = &opcodes[index];
                 program.push_str(current_opcode.mnemonic);
                 byte_number += 1;
+                if byte_number == current_opcode.size {
+                    // println!("byte_number >= current_opcde.size");
+                    program.push_str("\n");
+                    byte_number = 0;
+                    continue;
+                }
                 continue;
             }
         }
 
-        // println!("byte_number {}", byte_number);
-        // println!("current_opcode.size {}", current_opcode.size);
+        write!(&mut program, " {:X}", byte).expect("Unable to write");
 
-        if byte_number >= current_opcode.size {
+        if byte_number == current_opcode.size - 1{
             // println!("byte_number >= current_opcde.size");
             program.push_str("\n");
-            byte_number = 1;
-
+            byte_number = 0;
             continue;
         }
-
-        write!(&mut program, " {:X}", byte).expect("Unable to write");
         byte_number += 1;
     }
     println!("{}", program);
 
     Ok(())
+}
+
+fn get_opcode(opcodes: &Vec<opcodes::Opcode>, byte: u8) -> std::option::Option<usize> {
+    opcodes.iter().position(|opcode| opcode.hex == byte)
 }
 
 // fn is_instruction(byte: u8) {
