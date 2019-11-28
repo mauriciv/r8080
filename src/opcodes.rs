@@ -4,7 +4,7 @@ pub struct Opcode {
     pub size: usize,
 }
 
-pub fn init_opcodes() -> Vec<Opcode> {
+pub fn init() -> Vec<Opcode> {
     vec![
         Opcode {
             hex: 0x00u8,

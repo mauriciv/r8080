@@ -31,7 +31,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 
     file_handler.read_to_end(&mut content)?;
 
-    let opcodes = opcodes::init_opcodes();
+    let opcodes = opcodes::init();
 
     let mut byte_number = 1;
     let mut current_opcode: &opcodes::Opcode;
