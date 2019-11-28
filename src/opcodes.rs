@@ -993,8 +993,8 @@ pub fn init() -> Vec<Opcode> {
         },
         Opcode {
             hex: 0xC5u8,
-            mnemonic: "PUSH B adr", // (sp-2)<-C; (sp-1)<-B; sp <- sp - 2
-            size: 3,
+            mnemonic: "PUSH B",
+            size: 1,
         },
         Opcode {
             hex: 0xC6u8,
