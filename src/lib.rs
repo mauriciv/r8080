@@ -42,17 +42,16 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     }
     let mut program = String::new();
     let mut program_counter = 0;
+    let mut byte_buffer = String::new();
     for &byte in &content {
-        // println!("Byte is :{:#04x}", byte);
+
         if byte_number == 0 {
             if let Some(index) = get_opcode(&opcodes, byte) {
-                // println!("{:#04x}    {:#03?}    {}", byte, opcodes[index].hex, opcodes[index].mnemonic);
-                write!(&mut program, "{:#06X}  ", program_counter)
-                    .expect("Unable to write program_counter");
-                program_counter += 1;
+                write!(&mut program, "{:#06x}  ", program_counter).expect("Unable to write to program_counter");
                 current_opcode = &opcodes[index];
                 program.push_str(current_opcode.mnemonic);
                 byte_number += 1;
+                program_counter += 1;
                 if byte_number == current_opcode.size {
                     // println!("byte_number >= current_opcde.size");
                     program.push_str("\n");
@@ -63,7 +62,15 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
             }
         }
 
-        write!(&mut program, " {:X}", byte).expect("Unable to write");
+        program_counter += 1;
+
+        if byte_number == 1 {
+            write!(&mut byte_buffer, " {:X}", byte).expect("Unable to write to byte_buffer");
+        } else if byte_number == 2 {
+            write!(&mut program, " {:X}", byte).expect("Unable to write");
+            program.push_str(&byte_buffer);
+            byte_buffer = String::from("");
+        }
 
         if byte_number == current_opcode.size - 1{
             // println!("byte_number >= current_opcde.size");
