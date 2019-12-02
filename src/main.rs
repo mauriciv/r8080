@@ -11,8 +11,11 @@ fn main() {
         process::exit(1);
     });
 
-    if let Err(e) = r8080::run(config) {
-        eprintln!("Application error: {}", e);
-        process::exit(1)
+    match r8080::run(config) {
+        Ok(asm) => println!("{}", asm),
+        Err(e) => {
+                eprintln!("Application error: {}", e);
+                process::exit(1)
+        },
     }
 }
